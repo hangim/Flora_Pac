@@ -10,7 +10,7 @@ $ git clone https://github.com/pdszhh/Flora_Pac.git
 ## Usage
 <pre>
 $ ./flora_pac -h
-usage: flora_pac [-h] [-x [PROXY]] [-p [PORT]]
+usage: flora_pac [-h] [-x [PROXY]]
 
 Generate proxy auto-config rules.
 
