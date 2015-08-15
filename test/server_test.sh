@@ -1,3 +1,0 @@
-#!/bin/bash
-
-../flora_pac -x 'SOCKS5 127.0.0.1:8964; SOCKS 127.0.0.1:8964; DIRECT' -p 8970

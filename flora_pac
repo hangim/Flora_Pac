@@ -93,22 +93,6 @@ var list = ["""
            "PAC(Proxy auto-config) file." % (intLines, pacfile))
 
 
-def pac_server(port):
-    if port <= 0:
-        return
-    import SimpleHTTPServer
-    import BaseHTTPServer
-    class DefaultHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-        def do_GET(self):
-            if self.path == '/':
-                self.path = '/flora_pac.pac'
-            return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
-    httpd = BaseHTTPServer.HTTPServer(('0.0.0.0', port), DefaultHandler)
-    print "PAC is now serving at: 0.0.0.0:%d" % (port)
-    print "Check it out with: $ curl http://127.0.0.1:%d" % (port)
-    httpd.serve_forever()
-
-
 def fetch_ip_data():
     # fetch data from apnic
     print "Fetching data from apnic.net, it might take a few minutes, please wait..."
@@ -168,11 +152,6 @@ if __name__ == '__main__':
                                   "SOCKS5 127.0.0.1:8964; "
                                   "SOCKS 127.0.0.1:8964; "
                                   "PROXY 127.0.0.1:6489")
-    parser.add_argument('-p', '--port',
-                        dest    = 'port',
-                        default = '0',
-                        nargs   = '?',
-                        help    = "Pac Server Port [OPTIONAL], examples: 8970")
     args = parser.parse_args()
     generate_pac(args.proxy)
     pac_server(int(args.port))
