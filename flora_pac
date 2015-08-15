@@ -104,8 +104,8 @@ def pac_server(port):
                 self.path = '/flora_pac.pac'
             return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
     httpd = BaseHTTPServer.HTTPServer(('0.0.0.0', port), DefaultHandler)
-    print "PAC is now serving at: 0.0.0.0:%d"%(port)
-    print "Check it out with: $ curl http://127.0.0.1:%d"%(port)
+    print "PAC is now serving at: 0.0.0.0:%d" % (port)
+    print "Check it out with: $ curl http://127.0.0.1:%d" % (port)
     httpd.serve_forever()
 
 
@@ -115,9 +115,10 @@ def fetch_ip_data():
     url = r'http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest'
     data = urllib2.urlopen(url).read()
 
-    #fp = open("./delegated-apnic-latest", "r")
-    #data = fp.read()
-    #fp.close()
+    # fetch data from local file
+    # fp = open("./delegated-apnic-latest", "r")
+    # data = fp.read()
+    # fp.close()
 
     cnregex = re.compile(r'apnic\|cn\|ipv4\|[0-9\.]+\|[0-9]+\|[0-9]+\|a.*', re.IGNORECASE)
     cndata = cnregex.findall(data)
