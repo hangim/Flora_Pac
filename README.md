@@ -21,8 +21,6 @@ optional arguments:
                             SOCKS5 127.0.0.1:8964;
                             SOCKS 127.0.0.1:8964;
                             PROXY 127.0.0.1:6489
-  -p [PORT], --port [PORT]
-                        Pac Server Port [OPTIONAL], examples: 8970
 </pre>
 
 ## See also
