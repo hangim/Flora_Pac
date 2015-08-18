@@ -88,9 +88,7 @@ var list = ["""
     rfile.write(strLines)
     rfile.close()
 
-    print ("Rules: %d items.\n"
-           "Usage: Use the newly created %s as your web browser's automatic "
-           "PAC(Proxy auto-config) file." % (intLines, pacfile))
+    print ("Rules: %d items.\n" % intLines)
 
 
 def fetch_ip_data():
@@ -125,7 +123,7 @@ def fetch_ip_data():
     results.append((ip2long('100.64.0.0'),      ip2long('255.192.0.0')))
     results.append((ip2long('127.0.0.0'),       ip2long('255.0.0.0')))
     results.append((ip2long('169.254.0.0'),     ip2long('255.255.0.0')))
-    results.append((ip2long('127.16.0.0'),      ip2long('255.240.0.0')))
+    results.append((ip2long('172.16.0.0'),      ip2long('255.240.0.0')))
     results.append((ip2long('192.0.0.0'),       ip2long('255.255.255.0')))
     results.append((ip2long('192.0.2.0'),       ip2long('255.255.255.0')))
     results.append((ip2long('192.88.99.0'),     ip2long('255.255.255.0')))
@@ -154,4 +152,3 @@ if __name__ == '__main__':
                                   "PROXY 127.0.0.1:6489")
     args = parser.parse_args()
     generate_pac(args.proxy)
-    pac_server(int(args.port))
