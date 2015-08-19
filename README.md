@@ -4,7 +4,7 @@ A PAC(Proxy auto-config) file generator with fetched China IP range, which helps
 
 ## Installation
 <pre>
-$ git clone https://github.com/pdszhh/Flora_Pac.git
+$ git clone https://github.com/hangim/Flora_Pac.git
 </pre>
 
 ## Usage
