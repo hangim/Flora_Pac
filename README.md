@@ -18,9 +18,9 @@ optional arguments:
   -h, --help            show this help message and exit
   -x [PROXY], --proxy [PROXY]
                         Proxy Server, examples:
-                            SOCKS5 127.0.0.1:8964;
-                            SOCKS 127.0.0.1:8964;
-                            PROXY 127.0.0.1:6489
+                            SOCKS5 127.0.0.1:1080;
+                            SOCKS 127.0.0.1:1080;
+                            PROXY 127.0.0.1:8080
 </pre>
 
 ## See also
