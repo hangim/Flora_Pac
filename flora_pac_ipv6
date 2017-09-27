@@ -1,0 +1,162 @@
+#!/usr/bin/env python
+# Flora_Pac by @leaskh
+# www.leaskh.com, i@leaskh.com
+# Based on chnroutes project (by Numb.Majority@gmail.com)
+
+import re
+import urllib2
+import argparse
+import math
+import socket
+import struct
+
+
+def ip2long(ip):
+    packedIP = socket.inet_aton(ip)
+    return struct.unpack("!L", packedIP)[0]
+
+
+def generate_pac(proxy):
+    results = fetch_ip_data()
+    pacfile = 'flora_pac_ipv6.pac'
+    rfile   = open(pacfile, 'w')
+
+    strLines = """// Flora_Pac by @leaskh
+// www.leaskh.com, i@leaskh.com
+
+var proxy = '%s';
+
+function convertAddress(ipchars) {
+    var bytes = ipchars.split('.');
+    var result = ((bytes[0] & 0xff) << 24) |
+                 ((bytes[1] & 0xff) << 16) |
+                 ((bytes[2] & 0xff) <<  8) |
+                  (bytes[3] & 0xff);
+    return result;
+}
+
+function match(ip, list) {
+    var left = 0, right = list.length;
+    do {
+        var mid = Math.floor((left + right) / 2),
+            ipf = (ip & list[mid][1]) >>> 0,
+            m   = (list[mid][0] & list[mid][1]) >>> 0;
+        if (ipf == m) {
+            return true;
+        } else if (ipf > m) {
+            left  = mid + 1;
+        } else {
+            right = mid;
+        }
+    } while (left + 1 <= right)
+    return false;
+}
+
+function FindProxyForURL(url, host) {
+    // fix error message in FoxyProxy when switching tabs. http://verihy.me/posts/foxyproxy-pac/
+    if (typeof host === 'undefined' || isPlainHostName(host)) {
+        return 'DIRECT';
+    }
+
+    var strIp = dnsResolveEx(host);
+    if (!strIp) {
+        return proxy;
+    }
+    
+    if (strIp.indexOf(";") > 0)
+        strIp = strIp.substring(0, strIp.indexOf(";"));
+
+    if (isInNetEx(strIp, "::/0")) {
+        return "DIRECT";
+    }
+
+    var intIp = convertAddress(strIp);
+    if (match(intIp, list)) {
+        return 'DIRECT';
+    }
+
+    return proxy;
+
+}
+""" % (proxy)
+
+    strLines = strLines + """
+var list = ["""
+    intLines = 0
+    for ip, mask in results:
+        if intLines > 0:
+            strLines = strLines + ','
+        intLines = intLines + 1
+        strLines = strLines + """
+    [%d, %d]""" % (ip, mask)
+    strLines = strLines + """
+];"""
+
+    rfile.write(strLines)
+    rfile.close()
+
+    print ("Rules: %d items.\n" % intLines)
+
+
+def fetch_ip_data():
+    # fetch data from apnic
+    print "Fetching data from apnic.net, it might take a few minutes, please wait..."
+    url = r'http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest'
+    data = urllib2.urlopen(url).read()
+
+    # fetch data from local file
+    # fp = open("./delegated-apnic-latest", "r")
+    # data = fp.read()
+    # fp.close()
+
+    cnregex = re.compile(r'apnic\|cn\|ipv4\|[0-9\.]+\|[0-9]+\|[0-9]+\|a.*', re.IGNORECASE)
+    cndata = cnregex.findall(data)
+
+    results = []
+
+    for item in cndata:
+        unit_items=item.split('|')
+
+        starting_ip = ip2long(unit_items[3])
+
+        num_ip = int(unit_items[4])
+        mask = 0xffffffff ^ (num_ip - 1)
+
+        results.append((starting_ip, mask))
+
+    # https://en.wikipedia.org/wiki/Reserved_IP_addresses#Reserved_IPv4_addresses
+    results.append((ip2long('0.0.0.0'),         ip2long('255.0.0.0')))
+    results.append((ip2long('10.0.0.0'),        ip2long('255.0.0.0')))
+    results.append((ip2long('100.64.0.0'),      ip2long('255.192.0.0')))
+    results.append((ip2long('127.0.0.0'),       ip2long('255.0.0.0')))
+    results.append((ip2long('169.254.0.0'),     ip2long('255.255.0.0')))
+    results.append((ip2long('172.16.0.0'),      ip2long('255.240.0.0')))
+    results.append((ip2long('192.0.0.0'),       ip2long('255.255.255.0')))
+    results.append((ip2long('192.0.2.0'),       ip2long('255.255.255.0')))
+    results.append((ip2long('192.88.99.0'),     ip2long('255.255.255.0')))
+    results.append((ip2long('192.168.0.0'),     ip2long('255.255.0.0')))
+    results.append((ip2long('198.18.0.0'),      ip2long('255.254.0.0')))
+    results.append((ip2long('198.51.100.0'),    ip2long('255.255.255.0')))
+    results.append((ip2long('203.0.113.0'),     ip2long('255.255.255.0')))
+    results.append((ip2long('224.0.0.0'),       ip2long('240.0.0.0')))
+    results.append((ip2long('240.0.0.0'),       ip2long('240.0.0.0')))
+    results.append((ip2long('255.255.255.255'), ip2long('255.255.255.255')))
+
+    results = sorted(results, key = lambda x : x[0])
+    
+    return results
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description = "Generate proxy auto-config rules.")
+    parser.add_argument('-x', '--proxy',
+                        dest    = 'proxy',
+                        default = 'SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080; DIRECT',
+                        nargs   = '?',
+                        help    = "Proxy Server, examples: "
+                                  "SOCKS5 127.0.0.1:1080; "
+                                  "SOCKS 127.0.0.1:1080; "
+                                  "PROXY 127.0.0.1:8080")
+    args = parser.parse_args()
+    generate_pac(args.proxy)
+
