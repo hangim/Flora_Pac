@@ -35,9 +35,16 @@ function FindProxyForURL(url, host) {
         return 'DIRECT';
     }
 
-    var strIp = dnsResolve(host);
+    var strIp = dnsResolveEx(host);
     if (!strIp) {
         return proxy;
+    }
+    
+    if (strIp.indexOf(";") > 0)
+        strIp = strIp.substring(0, strIp.indexOf(";"));
+
+    if (isInNetEx(strIp, "::/0")) {
+        return "DIRECT";
     }
 
     var intIp = convertAddress(strIp);
